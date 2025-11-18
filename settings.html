@@ -1,0 +1,160 @@
+<!-- settings.html for Hiyd extension -->
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Hiyd Settings</title>
+        <style>
+            body {
+                font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: #f5f7fa;
+                color: #222;
+            }
+
+            .container {
+                max-width: 420px;
+                min-width: 320px;
+                margin: 48px auto;
+                background: #fff;
+                border-radius: 16px;
+                box-shadow: 0 4px 24px rgba(42, 122, 226, 0.07);
+                padding: 2.5em 2em 2em 2em;
+            }
+
+            h1 {
+                font-size: 1.7em;
+                margin-bottom: 1.2em;
+                color: #1a5bb8;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+            }
+
+            .header {
+                display: flex;
+                align-items: center;
+                gap: 1em;
+                margin-bottom: 1.2em;
+            }
+
+            .header img {
+                width: 64px;
+                height: 64px;
+                flex-shrink: 0;
+            }
+
+            .header h1 {
+                margin: 0;
+                line-height: 1.2;
+            }
+
+            form {
+                margin-top: 1.5em;
+                display: flex;
+                flex-direction: column;
+                gap: 1.7em;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.7em;
+            }
+
+            label {
+                font-weight: 600;
+                margin-bottom: 0.1em;
+                color: #222;
+                font-size: 1.05em;
+                letter-spacing: 0.1px;
+            }
+
+            .button-row {
+                display: flex;
+                gap: 1em;
+                margin-top: 0.7em;
+            }
+
+            .picker-btn,
+            button[type="submit"] {
+                background: #f0f4fa;
+                color: #1a5bb8;
+                border: 1px solid #dbe6f6;
+                border-radius: 6px;
+                padding: 0.5em 1.3em;
+                font-size: 1em;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s, border 0.2s;
+            }
+
+            .picker-btn:hover,
+            button[type="submit"]:hover {
+                background: #a3a6ac;
+                border: 1px solid #b3c6e6;
+            }
+
+            button[type="submit"] {
+                color: #fff;
+                background: #1a5bb8;
+                border: none;
+                font-weight: 600;
+                box-shadow: 0 1px 4px rgba(42, 122, 226, 0.08);
+                transition: background 0.2s;
+            }
+
+            button[type="submit"]:hover {
+                background: #14508a;
+            }
+
+            .links {
+                margin-top: 2.5em;
+                font-size: 1.08em;
+            }
+
+            .links a {
+                color: #1a5bb8;
+                text-decoration: none;
+                margin: 0 0.5em;
+                transition: color 0.2s;
+            }
+
+            .links a:hover {
+                color: #14508a;
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="header">
+                <img src="assets/icon128.png" alt="REDemptionX Logo">
+                <h1>REDemptionX</h1>
+            </div>
+            <p>REDemptionX automatically deletes your Reddit comments. Click the extension icon to start the deletion
+                process on your Reddit comments page.</p>
+
+            <h2>How to use:</h2>
+            <ul>
+                <li>Navigate to old.reddit.com/user/me/comments/</li>
+                <li>Click the extension icon to start deletion</li>
+                <li>Monitor progress in the popup window</li>
+            </ul>
+
+            <div class="links">
+                <h3>About:</h3>
+                <ul>
+                    <li>Automatically deletes Reddit comments</li>
+                    <li>Works with old.reddit.com</li>
+                    <li>Handles pagination automatically</li>
+                    <li>Shows deletion count in real-time</li>
+                </ul>
+            </div>
+        </div>
+        <script src="settings.js"></script>
+    </body>
+
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Reddit Comment Deleter</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background: #1a1a1b;
+                color: #d7dadc;
+                min-width: 300px;
+            }
+
+            .container {
+                background: #1a1a1b;
+                border-radius: 8px;
+            }
+
+            h1 {
+                font-size: 1.4em;
+                margin: 0 0 1em 0;
+                color: #ff4500;
+                font-weight: 700;
+            }
+
+            .status {
+                padding: 15px;
+                background: #272729;
+                border-radius: 6px;
+                margin-bottom: 15px;
+            }
+
+            .count {
+                font-size: 2em;
+                font-weight: bold;
+                color: #ff4500;
+                margin: 10px 0;
+            }
+
+            button {
+                width: 100%;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                font-size: 1em;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.2s;
+                margin-bottom: 10px;
+            }
+
+            #startBtn {
+                background: #ff4500;
+                color: white;
+            }
+
+            #startBtn:hover {
+                background: #ff5722;
+            }
+
+            #startBtn:disabled {
+                background: #666;
+                cursor: not-allowed;
+            }
+
+            #stopBtn {
+                background: #666;
+                color: white;
+            }
+
+            #stopBtn:hover {
+                background: #888;
+            }
+
+            .warning {
+                padding: 10px;
+                background: #331a00;
+                border-left: 3px solid #ff4500;
+                margin-bottom: 15px;
+                font-size: 0.9em;
+                border-radius: 4px;
+            }
+
+            .info {
+                font-size: 0.85em;
+                color: #818384;
+                margin-top: 15px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <h1>Reddit Comment Deleter</h1>
+
+            <div class="warning">
+                ⚠️ This will permanently delete all your Reddit comments. This action cannot be undone!
+            </div>
+
+            <div class="status">
+                <div id="statusText">Ready to delete comments</div>
+                <div class="count" id="deleteCount">0</div>
+                <div>comments deleted</div>
+            </div>
+
+            <button id="startBtn">Start Deletion</button>
+            <button id="stopBtn" style="display: none;">Stop Deletion</button>
+
+            <div class="info">
+                The extension will open your Reddit comments page and automatically delete them one by one.
+            </div>
+        </div>
+        <script src="popup.js"></script>
+    </body>
+
+</html>
