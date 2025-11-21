@@ -20,11 +20,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Build distribution
         run: |
           chmod +x build-distribution.sh
           ./build-distribution.sh
+          if [ ! -f distribution.zip ]; then
+            echo "Error: distribution.zip was not created"
+            exit 1
+          fi
+          echo "Successfully created distribution.zip ($(du -h distribution.zip | cut -f1))"
 
       - name: Generate release tag
         id: tag
@@ -36,11 +43,12 @@ jobs:
           echo "Generated tag: $TAG"
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: "Release from PR #${{ github.event.pull_request.number }}"
           files: distribution.zip
+          make_latest: true
           body: |
             ## Reddit Extension Release
 
