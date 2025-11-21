@@ -1,19 +1,19 @@
-# Reddit Comment Deleter
+#    REDemptionX - Automated Reddit content deletion tool.
 
-A Chrome/Chromium extension that automatically deletes all your Reddit comments.
+A Chrome/Chromium extension that automatically deletes all your Reddit posts and comments
 
-## ⚠️ Warning
+## Warning
 
-This extension will **permanently delete** all your Reddit comments. This action **cannot be undone**. Use with extreme caution!
+This extension will **permanently delete** all your Reddit posts and comments. This action **cannot be undone**. Use with extreme caution!
 
 ## Features
 
-- Automatically finds and deletes Reddit comments one by one
+- Automatically finds and deletes Reddit posts and comments one by one targeting the old reddit page uou sre ok.
 - Real-time progress tracking with deletion counter
 - Safety confirmation before starting
 - Ability to stop the deletion process at any time
 - Built-in rate limiting to avoid Reddit API restrictions
-- Auto-scrolls to load more comments
+- Auto-pages to load more posts and comments
 
 ## Installation
 
@@ -35,21 +35,18 @@ This extension will **permanently delete** all your Reddit comments. This action
 
 ## How It Works
 
-1. Opens `reddit.com/user/me/comments/` in a new tab
-2. Finds delete buttons on the page
+1. Opens `old.reddit.com/user/me/comments/` or equivalent posts page in a new tab
+2. Finds delete buttons on the page or posts..
 3. Clicks each delete button
 4. Confirms deletion by clicking "yes"
 5. Waits between deletions to avoid rate limits
-6. Scrolls to load more comments when needed
-7. Continues until no more comments are found
+6. Paginates to load more posts or comments when needed
+7. Continues until no more posts or comments are found
 
 ## Technical Details
 
 - Uses Chrome Extension Manifest V3
-- Content script runs on all Reddit pages
+- Content script runs on all old Reddit pages
 - Background service worker manages state
 - 2-second delay between deletions for rate limiting
 
-## Links
-
-REDemptionX - Automated Reddit comment deletion tool.
