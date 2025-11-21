@@ -1,0 +1,63 @@
+name: Create Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    # Only run if the PR was merged (not just closed)
+    if: github.event.pull_request.merged == true
+
+    permissions:
+      contents: write  # Required to create releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build distribution
+        run: |
+          chmod +x build-distribution.sh
+          ./build-distribution.sh
+
+      - name: Generate release tag
+        id: tag
+        run: |
+          # Create a tag based on date and PR number
+          PR_NUM="${{ github.event.pull_request.number }}"
+          TAG="release-$(date +'%Y%m%d-%H%M%S')-pr${PR_NUM}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated tag: $TAG"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Release from PR #${{ github.event.pull_request.number }}"
+          files: distribution.zip
+          body: |
+            ## Reddit Extension Release
+
+            **Merged PR**: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
+            **Author**: @${{ github.event.pull_request.user.login }}
+            **Merged by**: @${{ github.event.pull_request.merged_by.login }}
+
+            ### Installation
+            1. Download `distribution.zip`
+            2. Extract the contents
+            3. Load the extension in your browser
+
+            ### Changes
+            ${{ github.event.pull_request.body }}
+
+            **Full Changelog**: ${{ github.event.pull_request.html_url }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
