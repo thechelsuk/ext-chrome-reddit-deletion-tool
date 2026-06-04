@@ -8,12 +8,12 @@ This extension will **permanently delete** all your Reddit posts and comments. T
 
 ## Features
 
-- Automatically finds and deletes Reddit posts and comments one by one targeting the old reddit page uou sre ok.
+- Automatically finds and deletes Reddit posts and comments one by one targeting the old reddit page you are on.
 - Real-time progress tracking with deletion counter
 - Safety confirmation before starting
-- Ability to stop the deletion process at any time
+- Ability to stop the deletion process at any time (but no undo)
 - Built-in rate limiting to avoid Reddit API restrictions
-- Auto-pages to load more posts and comments
+- Auto-pagination to load more posts and comments
 
 ## Installation
 
