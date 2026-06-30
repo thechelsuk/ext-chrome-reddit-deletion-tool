@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    assignees:
+      - "thechelsuk"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/"
+    assignees:
+      - "thechelsuk"
+    schedule:
+      interval: "daily"
