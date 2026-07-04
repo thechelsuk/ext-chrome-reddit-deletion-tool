@@ -1,6 +1,6 @@
 {
     "name": "RedemptionX",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "RedemptionX - Reddit Content Deleter",
     "main": "background.js",
     "scripts": {
