@@ -1,16 +1,16 @@
 // background.ext.js
-// Chrome extension logic for REDemptionX
+// Chrome extension logic for RedemptionX
 
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
-        id: "redemptionx-delete",
-        title: "REDemptionX Delete",
+        id: "RedemptionX-delete",
+        title: "RedemptionX Delete",
         contexts: ["selection"],
     });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === "redemptionx-delete" && tab && tab.id) {
+    if (info.menuItemId === "RedemptionX-delete" && tab && tab.id) {
         chrome.tabs.sendMessage(
             tab.id,
             { action: "get-highlight" },
@@ -37,7 +37,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                         return frontMatter + "\n" + quoted + "\n";
                     };
                     const filename = `${response.date}-${sanitizeFilename(
-                        response.title
+                        response.title,
                     )}.md`;
                     const markdown = toMarkdown(response);
 
@@ -62,7 +62,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                                         };
                                         const handle =
                                             await window.showSaveFilePicker(
-                                                opts
+                                                opts,
                                             );
                                         const writable =
                                             await handle.createWritable();
@@ -72,7 +72,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                                         // User cancelled or error occurred
                                         console.log(
                                             "Save cancelled or failed:",
-                                            error
+                                            error,
                                         );
                                     }
                                 })();
@@ -94,7 +94,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
                         args: [filename, markdown],
                     });
                 }
-            }
+            },
         );
     }
 });

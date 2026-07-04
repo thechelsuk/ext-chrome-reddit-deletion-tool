@@ -1,4 +1,4 @@
-#    REDemptionX - Automated Reddit content deletion tool.
+# RedemptionX - Automated Reddit content deletion tool
 
 A Chrome/Chromium extension that automatically deletes all your Reddit posts and comments
 
@@ -28,15 +28,15 @@ This extension will **permanently delete** all your Reddit posts and comments. T
 1. Click the extension icon in your browser toolbar
 2. Read the warning carefully
 3. Click "Start Deletion" and confirm
-4. The extension will open your Reddit comments page
+4. The extension will open your Reddit overview page
 5. Deletion begins automatically
 6. Monitor progress in the popup window
 7. Click "Stop Deletion" at any time to halt the process
 
 ## How It Works
 
-1. Opens `old.reddit.com/user/me/comments/` or equivalent posts page in a new tab
-2. Finds delete buttons on the page or posts..
+1. Opens `old.reddit.com/user/me/overview/` in a new tab
+2. Finds delete buttons for posts and comments on the page
 3. Clicks each delete button
 4. Confirms deletion by clicking "yes"
 5. Waits between deletions to avoid rate limits
@@ -49,4 +49,3 @@ This extension will **permanently delete** all your Reddit posts and comments. T
 - Content script runs on all old Reddit pages
 - Background service worker manages state
 - 2-second delay between deletions for rate limiting
-

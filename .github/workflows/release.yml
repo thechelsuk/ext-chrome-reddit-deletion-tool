@@ -1,71 +1,111 @@
-name: Create Release
+name: Release Distro
 
 on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - main
+    push:
+        branches:
+            - main
+        paths:
+            - "package.json"
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
+    release:
+        name: Create Tag & Release
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        outputs:
+            sha: ${{ github.sha }}
+            should_deploy: ${{ steps.version_changed.outputs.changed == 'true' && steps.tag_check.outputs.exists == 'false' }}
 
-    # Only run if the PR was merged (not just closed)
-    if: github.event.pull_request.merged == true
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v7
+              with:
+                  fetch-depth: 2 # Need at least 2 commits to detect version change
 
-    permissions:
-      contents: write  # Required to create releases
+            - name: Get version from package.json
+              id: pkg
+              run: |
+                  VERSION=$(jq -r '.version' package.json)
+                  DESCRIPTION=$(jq -r '.description // empty' package.json)
+                  echo "version=${VERSION}" >> $GITHUB_OUTPUT
+                  echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
+                  echo "description<<EOF" >> $GITHUB_OUTPUT
+                  echo "$DESCRIPTION" >> $GITHUB_OUTPUT
+                  echo "EOF" >> $GITHUB_OUTPUT
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+            - name: Check if version changed
+              id: version_changed
+              run: |
+                  PREV_JSON=$(git show HEAD~1:package.json 2>/dev/null || echo "{}")
+                  PREV_VERSION=$(echo "$PREV_JSON" | jq -r '.version // empty' 2>/dev/null || echo "")
+                  CURR_VERSION=${{ steps.pkg.outputs.version }}
+                  if [ "$PREV_VERSION" != "$CURR_VERSION" ]; then
+                    echo "changed=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                  fi
 
-      - name: Build distribution
-        run: |
-          chmod +x build-distribution.sh
-          ./build-distribution.sh
-          if [ ! -f distribution.zip ]; then
-            echo "Error: distribution.zip was not created"
-            exit 1
-          fi
-          echo "Successfully created distribution.zip ($(du -h distribution.zip | cut -f1))"
+            - name: Check tag does not already exist
+              id: tag_check
+              if: steps.version_changed.outputs.changed == 'true'
+              run: |
+                  TAG=${{ steps.pkg.outputs.tag }}
+                  if git ls-remote --tags origin "$TAG" | grep -q "$TAG"; then
+                    echo "exists=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "exists=false" >> $GITHUB_OUTPUT
+                  fi
 
-      - name: Generate release tag
-        id: tag
-        run: |
-          # Create a tag based on date and PR number
-          PR_NUM="${{ github.event.pull_request.number }}"
-          TAG="release-$(date +'%Y%m%d-%H%M%S')-pr${PR_NUM}"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "Generated tag: $TAG"
+            - name: Get last commit message
+              id: commit
+              if: |
+                  steps.version_changed.outputs.changed == 'true' &&
+                  steps.tag_check.outputs.exists == 'false'
+              run: |
+                  MSG=$(git log -1 --pretty=%B | grep -v '^Signed-off-by:' || true)
+                  # Escape multiline for GitHub output
+                  echo "message<<EOF" >> $GITHUB_OUTPUT
+                  echo "$MSG" >> $GITHUB_OUTPUT
+                  echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Release from PR #${{ github.event.pull_request.number }}"
-          files: distribution.zip
-          make_latest: true
-          body: |
-            ## Reddit Extension Release
+            - name: Build distribution
+              run: |
+                  chmod +x build-distribution.sh
+                  ./build-distribution.sh
+                  if [ ! -f distribution.zip ]; then
+                    echo "Error: distribution.zip was not created"
+                    exit 1
+                  fi
+                  echo "Successfully created distribution.zip ($(du -h distribution.zip | cut -f1))"
 
-            **Merged PR**: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
-            **Author**: @${{ github.event.pull_request.user.login }}
-            **Merged by**: @${{ github.event.pull_request.merged_by.login }}
+            - name: Create tag
+              if: |
+                  steps.version_changed.outputs.changed == 'true' &&
+                  steps.tag_check.outputs.exists == 'false'
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git tag ${{ steps.pkg.outputs.tag }}
+                  git push origin ${{ steps.pkg.outputs.tag }}
 
-            ### Installation
-            1. Download `distribution.zip`
-            2. Extract the contents
-            3. Load the extension in your browser
+            - name: Create GitHub Release
+              if: |
+                  steps.version_changed.outputs.changed == 'true' &&
+                  steps.tag_check.outputs.exists == 'false'
+              uses: softprops/action-gh-release@v3
+              with:
+                  tag_name: ${{ steps.pkg.outputs.tag }}
+                  name: ${{ steps.pkg.outputs.version }}
+                  files: distribution.zip
+                  make_latest: true
+                  body: |
+                      ## About
 
-            ### Changes
-            ${{ github.event.pull_request.body }}
+                      ${{ steps.pkg.outputs.description }}
 
-            **Full Changelog**: ${{ github.event.pull_request.html_url }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                      ## Recent Changes
+
+                      ${{ steps.commit.outputs.message }}
+                  draft: false
+                  prerelease: ${{ contains(steps.pkg.outputs.version, '-') }}

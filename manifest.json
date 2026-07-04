@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Reddit Comment Deleter",
+    "name": "Reddit Content Deleter",
     "version": "1.0.0",
-    "description": "Automatically delete all your Reddit comments",
+    "description": "Automatically delete all your Reddit posts and comments",
     "permissions": [
         "scripting",
         "activeTab",
@@ -16,7 +16,7 @@
         "service_worker": "background.js"
     },
     "action": {
-        "default_title": "Reddit Comment Deleter",
+        "default_title": "Reddit Content Deleter",
         "default_popup": "popup.html"
     },
     "content_scripts": [

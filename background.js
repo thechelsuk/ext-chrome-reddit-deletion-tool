@@ -1,7 +1,8 @@
-console.log("Reddit Comment Deleter background.js loaded");
+console.log("Reddit Content Deleter background.js loaded");
 
 let isDeleting = false;
 let deleteCount = 0;
+let activeRedditTabId = null;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "startDeletion") {
@@ -13,6 +14,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (tabs.length > 0) {
                 // Use existing tab
                 const redditTab = tabs[0];
+                activeRedditTabId = redditTab.id;
                 chrome.tabs.update(redditTab.id, { active: true }, () => {
                     // Wait a moment, then inject and run the script
                     setTimeout(() => {
@@ -23,7 +25,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                 if (chrome.runtime.lastError) {
                                     console.log(
                                         "Error:",
-                                        chrome.runtime.lastError.message
+                                        chrome.runtime.lastError.message,
                                     );
                                     // Try reloading the tab and starting again
                                     chrome.tabs.reload(redditTab.id, () => {
@@ -32,12 +34,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                                                 redditTab.id,
                                                 {
                                                     action: "beginDeletion",
-                                                }
+                                                },
                                             );
                                         }, 2000);
                                     });
                                 }
-                            }
+                            },
                         );
                     }, 500);
                     sendResponse({
@@ -49,14 +51,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             } else {
                 // Create new tab
                 chrome.tabs.create(
-                    { url: "https://old.reddit.com/user/me/comments/" },
+                    { url: "https://old.reddit.com/user/me/overview/" },
                     (tab) => {
+                        activeRedditTabId = tab.id;
                         sendResponse({
                             success: true,
                             tabId: tab.id,
                             existing: false,
                         });
-                    }
+                    },
                 );
             }
         });
@@ -65,7 +68,47 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.action === "stopDeletion") {
         isDeleting = false;
-        sendResponse({ success: true, stopped: true });
+        const stopResponse = { success: true, stopped: true };
+
+        if (activeRedditTabId) {
+            chrome.tabs.sendMessage(
+                activeRedditTabId,
+                { action: "stopDeletion" },
+                () => {
+                    if (chrome.runtime.lastError) {
+                        console.log(
+                            "Stop message error:",
+                            chrome.runtime.lastError.message,
+                        );
+                    }
+                    sendResponse(stopResponse);
+                },
+            );
+            return true;
+        }
+
+        // Fallback: try to find an open Reddit tab if no active tab was tracked.
+        chrome.tabs.query({ url: "*://*.reddit.com/*" }, (tabs) => {
+            if (tabs.length > 0) {
+                chrome.tabs.sendMessage(
+                    tabs[0].id,
+                    { action: "stopDeletion" },
+                    () => {
+                        if (chrome.runtime.lastError) {
+                            console.log(
+                                "Stop message error:",
+                                chrome.runtime.lastError.message,
+                            );
+                        }
+                        sendResponse(stopResponse);
+                    },
+                );
+            } else {
+                sendResponse(stopResponse);
+            }
+        });
+
+        return true;
     }
 
     if (request.action === "getStatus") {

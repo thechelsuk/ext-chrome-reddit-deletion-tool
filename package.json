@@ -1,7 +1,7 @@
 {
-    "name": "redemptionx",
-    "version": "1.0.0",
-    "description": "REDemptionX - Reddit Comment Deleter",
+    "name": "RedemptionX",
+    "version": "1.1.0",
+    "description": "RedemptionX - Reddit Content Deleter",
     "main": "background.js",
     "scripts": {
         "test": "jest"
