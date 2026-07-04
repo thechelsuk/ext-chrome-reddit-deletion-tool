@@ -7,8 +7,16 @@ let activeRedditTabId = null;
 const START_RETRY_DELAY_MS = 800;
 const MAX_START_RETRIES = 8;
 
+function broadcastToPopup(payload) {
+    chrome.runtime.sendMessage(payload, () => {
+        if (chrome.runtime.lastError) {
+            // Popup can be closed; no receiver is expected in that case.
+        }
+    });
+}
+
 function publishStatus(status) {
-    chrome.runtime.sendMessage({ action: "statusUpdate", status });
+    broadcastToPopup({ action: "statusUpdate", status });
 }
 
 function beginDeletionWithRetry(tabId, retriesLeft = MAX_START_RETRIES) {
@@ -133,7 +141,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.action === "incrementCount") {
         deleteCount++;
-        chrome.runtime.sendMessage({
+        broadcastToPopup({
             action: "updateCount",
             count: deleteCount,
         });
