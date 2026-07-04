@@ -7,6 +7,35 @@ async function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function clickLinkSafely(link) {
+    if (!link) {
+        return false;
+    }
+
+    const href = (link.getAttribute("href") || "").trim().toLowerCase();
+    if (!href.startsWith("javascript:")) {
+        link.click();
+        return true;
+    }
+
+    // Prevent javascript: URL default navigation while still triggering Reddit handlers.
+    link.addEventListener(
+        "click",
+        (event) => {
+            event.preventDefault();
+        },
+        { capture: true, once: true },
+    );
+
+    const clickEvent = new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+    });
+    link.dispatchEvent(clickEvent);
+    return true;
+}
+
 // Check if we should auto-start on page load (for pagination)
 function checkAutoStart() {
     const shouldAutoStart = sessionStorage.getItem("redditDeleterAutoStart");
@@ -24,7 +53,7 @@ function testSelectors() {
     console.log("Found delete forms:", allForms.length);
 
     const deleteLinks = document.querySelectorAll(
-        'form.del-button a[data-event-action="delete"]'
+        'form.del-button a[data-event-action="delete"]',
     );
     console.log("Found delete links:", deleteLinks.length);
 
@@ -38,12 +67,11 @@ setTimeout(testSelectors, 2000);
 
 // Check for auto-start
 checkAutoStart();
-setTimeout(testSelectors, 2000);
 
 async function deleteNextComment() {
     // Find the first delete button (old Reddit format) - simplified selector
     const deleteLink = document.querySelector(
-        'form.del-button a[data-event-action="delete"]'
+        'form.del-button a[data-event-action="delete"]',
     );
 
     if (!deleteLink) {
@@ -53,7 +81,7 @@ async function deleteNextComment() {
 
     console.log("Found delete button, clicking...");
     // Click delete link to show confirmation
-    deleteLink.click();
+    clickLinkSafely(deleteLink);
     await sleep(300);
 
     // Find and click the "yes" confirmation link - try simpler selector first
@@ -67,7 +95,7 @@ async function deleteNextComment() {
 
     if (confirmLink) {
         console.log("Found confirmation link, clicking yes...");
-        confirmLink.click();
+        clickLinkSafely(confirmLink);
         deletedCount++;
         chrome.runtime.sendMessage({ action: "incrementCount" });
         await sleep(400); // Wait for deletion to complete
@@ -90,14 +118,12 @@ async function startDeletionProcess() {
 
             if (nextButton) {
                 console.log(
-                    "No more comments on this page, navigating to next page..."
+                    "No more comments on this page, navigating to next page...",
                 );
 
                 // Set flag to auto-start on next page
                 sessionStorage.setItem("redditDeleterAutoStart", "true");
 
-                // Get the URL before clicking
-                const currentUrl = window.location.href;
                 const nextUrl = nextButton.href;
                 console.log("Next page URL:", nextUrl);
 
@@ -118,7 +144,7 @@ async function startDeletionProcess() {
 
             // Check again after scrolling
             const hasMoreComments = document.querySelector(
-                'form.del-button a[data-event-action="delete"]'
+                'form.del-button a[data-event-action="delete"]',
             );
 
             if (!hasMoreComments) {

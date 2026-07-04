@@ -1,6 +1,6 @@
 {
     "name": "RedemptionX",
-    "version": "1.1.2",
+    "version": "1.2.2",
     "description": "RedemptionX - A Chrome/Chromium extension that automatically deletes all your Reddit posts and comments",
     "main": "background.js",
     "scripts": {

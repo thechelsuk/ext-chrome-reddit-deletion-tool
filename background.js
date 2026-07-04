@@ -4,10 +4,48 @@ let isDeleting = false;
 let deleteCount = 0;
 let activeRedditTabId = null;
 
+const START_RETRY_DELAY_MS = 800;
+const MAX_START_RETRIES = 8;
+
+function publishStatus(status) {
+    chrome.runtime.sendMessage({ action: "statusUpdate", status });
+}
+
+function beginDeletionWithRetry(tabId, retriesLeft = MAX_START_RETRIES) {
+    chrome.tabs.sendMessage(tabId, { action: "beginDeletion" }, (response) => {
+        if (chrome.runtime.lastError) {
+            if (retriesLeft > 0) {
+                setTimeout(() => {
+                    beginDeletionWithRetry(tabId, retriesLeft - 1);
+                }, START_RETRY_DELAY_MS);
+                return;
+            }
+
+            console.log(
+                "Start message error:",
+                chrome.runtime.lastError.message,
+            );
+            isDeleting = false;
+            publishStatus("Could not start. Refresh Reddit and try again.");
+            return;
+        }
+
+        if (response && response.success === false) {
+            if (response.error === "Already running") {
+                publishStatus("Deletion in progress...");
+            }
+            return;
+        }
+
+        publishStatus("Deletion in progress...");
+    });
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "startDeletion") {
         isDeleting = true;
         deleteCount = 0;
+        publishStatus("Preparing Reddit page...");
 
         // Check if there's already a Reddit tab open
         chrome.tabs.query({ url: "*://*.reddit.com/*" }, (tabs) => {
@@ -16,32 +54,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 const redditTab = tabs[0];
                 activeRedditTabId = redditTab.id;
                 chrome.tabs.update(redditTab.id, { active: true }, () => {
-                    // Wait a moment, then inject and run the script
-                    setTimeout(() => {
-                        chrome.tabs.sendMessage(
-                            redditTab.id,
-                            { action: "beginDeletion" },
-                            (response) => {
-                                if (chrome.runtime.lastError) {
-                                    console.log(
-                                        "Error:",
-                                        chrome.runtime.lastError.message,
-                                    );
-                                    // Try reloading the tab and starting again
-                                    chrome.tabs.reload(redditTab.id, () => {
-                                        setTimeout(() => {
-                                            chrome.tabs.sendMessage(
-                                                redditTab.id,
-                                                {
-                                                    action: "beginDeletion",
-                                                },
-                                            );
-                                        }, 2000);
-                                    });
-                                }
-                            },
-                        );
-                    }, 500);
+                    beginDeletionWithRetry(redditTab.id);
                     sendResponse({
                         success: true,
                         tabId: redditTab.id,
@@ -54,6 +67,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     { url: "https://old.reddit.com/user/me/overview/" },
                     (tab) => {
                         activeRedditTabId = tab.id;
+                        publishStatus("Opening Reddit...");
+                        beginDeletionWithRetry(tab.id);
                         sendResponse({
                             success: true,
                             tabId: tab.id,
@@ -68,6 +83,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.action === "stopDeletion") {
         isDeleting = false;
+        publishStatus("Deletion stopped");
         const stopResponse = { success: true, stopped: true };
 
         if (activeRedditTabId) {

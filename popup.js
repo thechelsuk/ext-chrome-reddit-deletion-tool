@@ -21,17 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 stopBtn.style.display = "block";
 
                 if (response.existing) {
-                    // Already on Reddit, deletion started
-                    statusText.textContent = "Deletion in progress...";
+                    statusText.textContent = "Preparing Reddit page...";
                 } else {
-                    // New tab opened, wait for it to load
                     statusText.textContent = "Opening Reddit...";
-                    setTimeout(() => {
-                        chrome.tabs.sendMessage(response.tabId, {
-                            action: "beginDeletion",
-                        });
-                        statusText.textContent = "Deletion in progress...";
-                    }, 3000);
                 }
             }
         });
@@ -47,6 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Listen for count updates
     chrome.runtime.onMessage.addListener((request) => {
+        if (request.action === "statusUpdate") {
+            statusText.textContent = request.status;
+        }
         if (request.action === "updateCount") {
             deleteCount.textContent = request.count;
         }

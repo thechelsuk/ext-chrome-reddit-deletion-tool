@@ -108,7 +108,7 @@ describe("popup UI behavior", () => {
         );
         expect(startBtn.style.display).toBe("none");
         expect(stopBtn.style.display).toBe("block");
-        expect(statusText.textContent).toBe("Deletion in progress...");
+        expect(statusText.textContent).toBe("Preparing Reddit page...");
         expect(chrome.tabs.sendMessage).not.toHaveBeenCalled();
     });
 
@@ -124,13 +124,7 @@ describe("popup UI behavior", () => {
 
         startBtn.click();
         expect(statusText.textContent).toBe("Opening Reddit...");
-
-        jest.advanceTimersByTime(3000);
-
-        expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(42, {
-            action: "beginDeletion",
-        });
-        expect(statusText.textContent).toBe("Deletion in progress...");
+        expect(chrome.tabs.sendMessage).not.toHaveBeenCalled();
     });
 
     test("stop button sends stop action and updates UI", () => {
@@ -173,6 +167,21 @@ describe("popup UI behavior", () => {
         expect(statusText.textContent).toBe("Deletion complete!");
         expect(deleteCount.textContent).toBe("13");
     });
+
+    test("applies statusUpdate messages from background", () => {
+        const { onMessageListeners } = setupChromeMock();
+        loadPopupScript();
+
+        const statusText = document.getElementById("statusText");
+        const listener = onMessageListeners[0];
+
+        listener({
+            action: "statusUpdate",
+            status: "Preparing Reddit page...",
+        });
+
+        expect(statusText.textContent).toBe("Preparing Reddit page...");
+    });
 });
 
 describe("background message routing", () => {
@@ -203,6 +212,7 @@ describe("background message routing", () => {
     }
 
     afterEach(() => {
+        jest.useRealTimers();
         delete global.chrome;
         onMessageListener = null;
     });
@@ -296,6 +306,55 @@ describe("background message routing", () => {
             success: true,
             tabId: 808,
             existing: false,
+        });
+    });
+
+    test("startDeletion retries beginDeletion until receiver is ready", () => {
+        jest.useFakeTimers();
+        loadBackgroundWithChromeMock();
+
+        chrome.tabs.query.mockImplementation((queryInfo, callback) => {
+            callback([{ id: 321 }]);
+        });
+        chrome.tabs.update.mockImplementation(
+            (tabId, updateProps, callback) => {
+                callback();
+            },
+        );
+
+        let attempts = 0;
+        chrome.tabs.sendMessage.mockImplementation(
+            (tabId, message, callback) => {
+                if (message.action !== "beginDeletion") {
+                    callback({ success: true });
+                    return;
+                }
+
+                attempts++;
+                if (attempts === 1) {
+                    chrome.runtime.lastError = {
+                        message:
+                            "Could not establish connection. Receiving end does not exist.",
+                    };
+                    callback();
+                    chrome.runtime.lastError = null;
+                    return;
+                }
+
+                callback({ success: true });
+            },
+        );
+
+        const startResponse = jest.fn();
+        onMessageListener({ action: "startDeletion" }, {}, startResponse);
+
+        expect(attempts).toBe(1);
+        jest.advanceTimersByTime(800);
+        expect(attempts).toBe(2);
+        expect(startResponse).toHaveBeenCalledWith({
+            success: true,
+            tabId: 321,
+            existing: true,
         });
     });
 });
