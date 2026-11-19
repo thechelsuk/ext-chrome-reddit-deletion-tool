@@ -7,18 +7,20 @@ async function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const SCRIPT_URL_SCHEMES = ["javascript:", "data:", "vbscript:"];
+
 function clickLinkSafely(link) {
     if (!link) {
         return false;
     }
 
     const href = (link.getAttribute("href") || "").trim().toLowerCase();
-    if (!href.startsWith("javascript:")) {
+    if (!SCRIPT_URL_SCHEMES.some((scheme) => href.startsWith(scheme))) {
         link.click();
         return true;
     }
 
-    // Prevent javascript: URL default navigation while still triggering Reddit handlers.
+    // Prevent script-like URL default navigation while still triggering Reddit handlers.
     link.addEventListener(
         "click",
         (event) => {
@@ -187,3 +189,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     return true;
 });
+
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = { clickLinkSafely };
+}

@@ -358,3 +358,52 @@ describe("background message routing", () => {
         });
     });
 });
+
+describe("content script link clicking", () => {
+    let clickLinkSafely;
+
+    beforeEach(() => {
+        jest.useFakeTimers();
+        global.chrome = {
+            runtime: { onMessage: { addListener: jest.fn() } },
+        };
+        jest.resetModules();
+        ({ clickLinkSafely } = require("../content.js"));
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
+        delete global.chrome;
+    });
+
+    function linkWithHref(href) {
+        const link = document.createElement("a");
+        link.setAttribute("href", href);
+        document.body.appendChild(link);
+        link.click = jest.fn();
+        return link;
+    }
+
+    test.each([
+        "javascript:void(0)",
+        " JavaScript:void(0)",
+        "data:text/html,<p>x</p>",
+        "vbscript:msgbox(1)",
+    ])("does not follow script-like URL %s", (href) => {
+        const link = linkWithHref(href);
+        let defaultPrevented = false;
+        link.addEventListener("click", (event) => {
+            defaultPrevented = event.defaultPrevented;
+        });
+
+        expect(clickLinkSafely(link)).toBe(true);
+        expect(link.click).not.toHaveBeenCalled();
+        expect(defaultPrevented).toBe(true);
+    });
+
+    test("clicks an ordinary link", () => {
+        const link = linkWithHref("https://old.reddit.com/");
+        expect(clickLinkSafely(link)).toBe(true);
+        expect(link.click).toHaveBeenCalled();
+    });
+});
