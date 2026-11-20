@@ -21,7 +21,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v7
               with:
-                  fetch-depth: 2 # Need at least 2 commits to detect version change
+                  fetch-depth: 0
 
             - name: Get version from package.json
               id: pkg
@@ -57,17 +57,22 @@ jobs:
                     echo "exists=false" >> $GITHUB_OUTPUT
                   fi
 
-            - name: Get last commit message
-              id: commit
+            - name: Find the previous release
+              id: previous
               if: |
                   steps.version_changed.outputs.changed == 'true' &&
                   steps.tag_check.outputs.exists == 'false'
-              run: |
-                  MSG=$(git log -1 --pretty=%B | grep -v '^Signed-off-by:' || true)
-                  # Escape multiline for GitHub output
-                  echo "message<<EOF" >> $GITHUB_OUTPUT
-                  echo "$MSG" >> $GITHUB_OUTPUT
-                  echo "EOF" >> $GITHUB_OUTPUT
+              run: echo "tag=$(git tag --list --sort=-version:refname | head -n1)" >> "$GITHUB_OUTPUT"
+
+            - name: Build release notes
+              id: notes
+              if: |
+                  steps.version_changed.outputs.changed == 'true' &&
+                  steps.tag_check.outputs.exists == 'false'
+              uses: thechelsuk/workflows/.github/actions/release-notes@main
+              with:
+                  previous: ${{ steps.previous.outputs.tag }}
+                  description: ${{ steps.pkg.outputs.description }}
 
             - name: Build distribution
               run: |
@@ -99,13 +104,6 @@ jobs:
                   name: ${{ steps.pkg.outputs.version }}
                   files: distribution.zip
                   make_latest: true
-                  body: |
-                      ## About
-
-                      ${{ steps.pkg.outputs.description }}
-
-                      ## Recent Changes
-
-                      ${{ steps.commit.outputs.message }}
+                  body_path: ${{ steps.notes.outputs.notes_file }}
                   draft: false
                   prerelease: ${{ contains(steps.pkg.outputs.version, '-') }}
