@@ -1,6 +1,8 @@
 # RedemptionX - Automated Reddit content deletion tool
 
-A Chrome/Chromium extension that automatically deletes all your Reddit posts and comments
+A Chrome/Chromium extension that automatically deletes all your own Reddit posts and comments.
+
+RedemptionX is an independent project. It is not made, endorsed or supported by Reddit.
 
 ## Warning
 
@@ -8,7 +10,7 @@ This extension will **permanently delete** all your Reddit posts and comments. T
 
 ## Features
 
-- Automatically finds and deletes Reddit posts and comments one by one targeting the old reddit page you are on.
+- Automatically finds and deletes Reddit posts and comments one by one, starting from your old Reddit overview page.
 - Real-time progress tracking with deletion counter
 - Safety confirmation before starting
 - Ability to stop the deletion process at any time (but no undo)
@@ -16,6 +18,8 @@ This extension will **permanently delete** all your Reddit posts and comments. T
 - Auto-pagination to load more posts and comments
 
 ## Installation
+
+RedemptionX is not on the Chrome Web Store yet. Until it is, load it by hand:
 
 1. Clone this repository
 2. Open Chrome and navigate to `chrome://extensions/`
@@ -35,7 +39,7 @@ This extension will **permanently delete** all your Reddit posts and comments. T
 
 ## How It Works
 
-1. Opens `old.reddit.com/user/me/overview/` in a new tab
+1. Opens `old.reddit.com/user/me/overview/`, in a new tab or an old Reddit tab you already have open
 2. Finds delete buttons for posts and comments on the page
 3. Clicks each delete button
 4. Confirms deletion by clicking "yes"
@@ -46,6 +50,23 @@ This extension will **permanently delete** all your Reddit posts and comments. T
 ## Technical Details
 
 - Uses Chrome Extension Manifest V3
-- Content script runs on all old Reddit pages
+- Content script runs on old Reddit pages only
 - Background service worker manages state
-- 2-second delay between deletions for rate limiting
+- Pauses between deletions to avoid rate limits
+- Needs access to old.reddit.com only. No data is collected or sent anywhere.
+
+## Links
+
+- [Project page](https://thechels.uk/projects/ext-reddit-delete-tool)
+- [GitHub](https://github.com/thechelsuk/ext-chrome-reddit-deletion-tool)
+- [Privacy policy](https://thechels.uk/app/privacy)
+
+## Help
+
+Raise an [issue on GitHub](https://github.com/thechelsuk/ext-chrome-reddit-deletion-tool/issues) or reach out on [socials](https://links.thechels.uk).
+
+## Support
+
+RedemptionX is free and maintained in my spare time. If you can support me and continued ongoing development, you can through [GitHub Sponsors](https://github.com/sponsors/thechelsuk) or [Ko-fi](https://ko-fi.com/thechelsuk).
+
+Made with ♥ in the UK by [thechels.uk](https://thechels.uk). See my [other projects](https://thechels.uk/projects).

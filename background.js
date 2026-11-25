@@ -4,6 +4,7 @@ let isDeleting = false;
 let deleteCount = 0;
 let activeRedditTabId = null;
 
+const OVERVIEW_URL = "https://old.reddit.com/user/me/overview/";
 const START_RETRY_DELAY_MS = 800;
 const MAX_START_RETRIES = 8;
 
@@ -56,34 +57,35 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         publishStatus("Preparing Reddit page...");
 
         // Check if there's already a Reddit tab open
-        chrome.tabs.query({ url: "*://*.reddit.com/*" }, (tabs) => {
+        chrome.tabs.query({ url: "*://old.reddit.com/*" }, (tabs) => {
             if (tabs.length > 0) {
                 // Use existing tab
                 const redditTab = tabs[0];
                 activeRedditTabId = redditTab.id;
-                chrome.tabs.update(redditTab.id, { active: true }, () => {
-                    beginDeletionWithRetry(redditTab.id);
-                    sendResponse({
-                        success: true,
-                        tabId: redditTab.id,
-                        existing: true,
-                    });
-                });
-            } else {
-                // Create new tab
-                chrome.tabs.create(
-                    { url: "https://old.reddit.com/user/me/overview/" },
-                    (tab) => {
-                        activeRedditTabId = tab.id;
-                        publishStatus("Opening Reddit...");
-                        beginDeletionWithRetry(tab.id);
+                chrome.tabs.update(
+                    redditTab.id,
+                    { active: true, url: OVERVIEW_URL },
+                    () => {
+                        beginDeletionWithRetry(redditTab.id);
                         sendResponse({
                             success: true,
-                            tabId: tab.id,
-                            existing: false,
+                            tabId: redditTab.id,
+                            existing: true,
                         });
                     },
                 );
+            } else {
+                // Create new tab
+                chrome.tabs.create({ url: OVERVIEW_URL }, (tab) => {
+                    activeRedditTabId = tab.id;
+                    publishStatus("Opening Reddit...");
+                    beginDeletionWithRetry(tab.id);
+                    sendResponse({
+                        success: true,
+                        tabId: tab.id,
+                        existing: false,
+                    });
+                });
             }
         });
         return true;
@@ -112,7 +114,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
 
         // Fallback: try to find an open Reddit tab if no active tab was tracked.
-        chrome.tabs.query({ url: "*://*.reddit.com/*" }, (tabs) => {
+        chrome.tabs.query({ url: "*://old.reddit.com/*" }, (tabs) => {
             if (tabs.length > 0) {
                 chrome.tabs.sendMessage(
                     tabs[0].id,

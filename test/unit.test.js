@@ -271,7 +271,7 @@ describe("background message routing", () => {
         onMessageListener({ action: "stopDeletion" }, {}, stopResponse);
 
         expect(chrome.tabs.query).toHaveBeenCalledWith(
-            { url: "*://*.reddit.com/*" },
+            { url: "*://old.reddit.com/*" },
             expect.any(Function),
         );
         expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
@@ -283,6 +283,57 @@ describe("background message routing", () => {
             success: true,
             stopped: true,
         });
+    });
+
+    test("startDeletion looks only for old reddit tabs", () => {
+        loadBackgroundWithChromeMock();
+
+        chrome.tabs.query.mockImplementation((queryInfo, callback) => {
+            callback([]);
+        });
+        chrome.tabs.create.mockImplementation((createProps, callback) => {
+            callback({ id: 808 });
+        });
+
+        onMessageListener({ action: "startDeletion" }, {}, jest.fn());
+
+        expect(chrome.tabs.query).toHaveBeenCalledWith(
+            { url: "*://old.reddit.com/*" },
+            expect.any(Function),
+        );
+        expect(chrome.tabs.query).not.toHaveBeenCalledWith(
+            { url: "*://*.reddit.com/*" },
+            expect.any(Function),
+        );
+    });
+
+    test("startDeletion sends an existing old reddit tab to the overview page", () => {
+        loadBackgroundWithChromeMock();
+
+        chrome.tabs.query.mockImplementation((queryInfo, callback) => {
+            callback([{ id: 321, url: "https://old.reddit.com/r/aww/" }]);
+        });
+        chrome.tabs.update.mockImplementation(
+            (tabId, updateProps, callback) => {
+                callback();
+            },
+        );
+        chrome.tabs.sendMessage.mockImplementation(
+            (tabId, message, callback) => {
+                callback({ success: true });
+            },
+        );
+
+        onMessageListener({ action: "startDeletion" }, {}, jest.fn());
+
+        expect(chrome.tabs.update).toHaveBeenCalledWith(
+            321,
+            {
+                active: true,
+                url: "https://old.reddit.com/user/me/overview/",
+            },
+            expect.any(Function),
+        );
     });
 
     test("startDeletion opens overview page when no reddit tab exists", () => {

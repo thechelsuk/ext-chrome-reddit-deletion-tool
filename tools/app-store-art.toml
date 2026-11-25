@@ -1,0 +1,90 @@
+[app]
+name = "RedemptionX"
+
+[paths]
+appstore = "screenshots"
+
+[vars]
+INK = "#ffffff"
+ACCENT = "#ff4500"
+SOFT = "#b8bbbd"
+BG = "radial-gradient(120% 90% at 85% 40%,#3a1a0c 0%,#1a1a1b 55%,#111112 100%)"
+FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+ICON = "${uri('assets/icon128.png')}"
+
+[[pages]]
+name = "ready"
+html = "popup.html"
+size = [360, 600]
+script = '''window.chrome = {runtime: {sendMessage(m, cb) { if (cb) cb({isDeleting: false, deleteCount: 0}); },
+  onMessage: {addListener() {}}}};'''
+
+[[pages]]
+name = "running"
+html = "popup.html"
+size = [360, 600]
+script = '''window.chrome = {runtime: {sendMessage(m, cb) { if (cb) cb({isDeleting: true, deleteCount: 1284}); },
+  onMessage: {addListener() {}}}};'''
+
+[[pages]]
+name = "complete"
+html = "popup.html"
+size = [360, 600]
+script = '''window.chrome = {runtime: {sendMessage(m, cb) { if (cb) cb({isDeleting: false, deleteCount: 0}); },
+  onMessage: {addListener(fn) { setTimeout(() => fn({action: "deletionComplete", count: 2391}), 50); }}}};'''
+
+[layouts.screenshot]
+css = '''body{width:${W}px;height:${H}px;overflow:hidden;position:relative;font-family:${FONT};background:${BG}}
+.brand{position:absolute;left:96px;top:88px;display:flex;align-items:center;gap:18px;color:${INK};font-size:30px;font-weight:700;letter-spacing:-.01em}
+.brand img{width:52px;height:52px;border-radius:12px}
+.head{position:absolute;left:96px;top:250px;width:600px}
+h1{font-size:64px;line-height:1.05;font-weight:800;letter-spacing:-.03em;color:${INK}}
+h1 b{color:${ACCENT};font-weight:800}
+p{margin-top:28px;font-size:27px;line-height:1.4;font-weight:500;color:${SOFT}}
+.shot{position:absolute;right:120px;top:70px;height:660px;border-radius:18px;
+  box-shadow:0 0 0 2px #343536,0 40px 90px rgba(0,0,0,.6)}'''
+body = '''<div class="brand"><img src="${ICON}">RedemptionX</div>
+<div class="head"><h1>${title}</h1><p>${sub}</p></div>
+<img class="shot" src="${shot}">'''
+
+[layouts.tile]
+css = '''body{width:${W}px;height:${H}px;overflow:hidden;font-family:${FONT};background:${BG};
+  display:flex;flex-direction:column;justify-content:center;padding:0 40px}
+.brand{display:flex;align-items:center;gap:16px}
+.brand img{width:64px;height:64px;border-radius:14px}
+h1{font-size:40px;font-weight:800;letter-spacing:-.02em;color:${INK}}
+p{margin-top:22px;font-size:21px;line-height:1.35;font-weight:600;color:${SOFT}}
+p b{color:${ACCENT}}'''
+body = '''<div class="brand"><img src="${ICON}"><h1>RedemptionX</h1></div>
+<p>${title}</p>'''
+
+[[slides.main]]
+screen = "ready"
+title = "Delete your Reddit history, <b>all of it</b>"
+sub = "Every post and comment you've made, deleted one by one from old Reddit."
+
+[[slides.main]]
+screen = "running"
+title = "Watch it <b>work</b>"
+sub = "A running count as it goes, and a Stop button whenever you want it."
+
+[[slides.main]]
+screen = "complete"
+title = "Nothing sent <b>anywhere</b>"
+sub = "No account and no tracking. It only runs on old.reddit.com."
+
+[[slides.tile]]
+screen = "ready"
+title = "Bulk delete <b>all your Reddit posts and comments</b>"
+
+[[frame]]
+raw = "pages"
+sizes = ["webstore"]
+layout = "screenshot"
+slides = "main"
+
+[[frame]]
+raw = "pages"
+sizes = ["webstore-tile"]
+layout = "tile"
+slides = "tile"

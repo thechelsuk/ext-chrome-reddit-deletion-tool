@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Reddit Content Deleter</title>
+        <title>RedemptionX</title>
         <style>
             body {
                 font-family: 'Segoe UI', Arial, sans-serif;
@@ -84,6 +84,19 @@
                 border-radius: 4px;
             }
 
+            .footer {
+                font-size: 0.8em;
+                color: #818384;
+                margin-top: 15px;
+                border-top: 1px solid #343536;
+                padding-top: 10px;
+                line-height: 1.5;
+            }
+
+            .footer a {
+                color: #d7dadc;
+            }
+
             .info {
                 font-size: 0.85em;
                 color: #818384;
@@ -94,23 +107,35 @@
 
     <body>
         <div class="container">
-            <h1>Reddit Comment Deleter</h1>
+            <h1>RedemptionX</h1>
 
             <div class="warning">
-                ⚠️ This will permanently delete all your Reddit comments. This action cannot be undone!
+                ⚠️ This will permanently delete all your Reddit posts and comments. This action cannot be undone!
             </div>
 
             <div class="status">
-                <div id="statusText">Ready to delete comments</div>
+                <div id="statusText">Ready to delete posts and comments</div>
                 <div class="count" id="deleteCount">0</div>
-                <div>comments deleted</div>
+                <div>items deleted</div>
             </div>
 
             <button id="startBtn">Start Deletion</button>
             <button id="stopBtn" style="display: none;">Stop Deletion</button>
 
             <div class="info">
-                The extension will open your Reddit comments page and automatically delete them one by one.
+                RedemptionX opens your old Reddit overview page and deletes your posts and comments one by one.
+            </div>
+
+            <div class="footer">
+                <p>Help: raise an <a href="https://github.com/thechelsuk/ext-chrome-reddit-deletion-tool/issues"
+                        target="_blank">issue on GitHub</a> or reach out on <a href="https://links.thechels.uk"
+                        target="_blank">socials</a>.</p>
+                <p>If you can support me and continued ongoing development:
+                    <a href="https://github.com/sponsors/thechelsuk" target="_blank">GitHub Sponsors</a> or
+                    <a href="https://ko-fi.com/thechelsuk" target="_blank">Ko-fi</a>.</p>
+                <p>Made with ♥ in the UK by <a href="https://thechels.uk/projects/ext-reddit-delete-tool"
+                        target="_blank">thechels.uk</a>. See my <a href="https://thechels.uk/projects"
+                        target="_blank">other projects</a>.</p>
             </div>
         </div>
         <script src="popup.js"></script>
