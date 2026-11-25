@@ -2,20 +2,34 @@
 
 Paste these into the developer dashboard by hand. First submission.
 
+## Package
+
+Upload `distribution.zip` from the repo root, built by `bash build-distribution.sh`, or the one on the GitHub
+release.
+
 ## Store listing tab
 
-**Name** (from the manifest): RedemptionX
+Name and summary come from the manifest.
 
-**Summary** (from the manifest description, 132 characters at most):
+Name:
 
+```text
+RedemptionX
+```
+
+Summary (132 characters at most):
+
+```text
 Bulk delete all your own Reddit posts and comments from old Reddit.
+```
 
-**Category:** Make Chrome Yours > Privacy & Security
+Category: choose Make Chrome Yours > Privacy & Security.
 
-**Language:** English (UK)
+Language: choose English (UK).
 
-**Description:**
+Description:
 
+```text
 RedemptionX deletes all your own Reddit posts and comments for you, one by one.
 
 Warning: deletion is permanent. There is no undo.
@@ -39,33 +53,59 @@ Help: raise an issue on GitHub (https://github.com/thechelsuk/ext-chrome-reddit-
 If you can support me and continued ongoing development: GitHub Sponsors (https://github.com/sponsors/thechelsuk) or Ko-fi (https://ko-fi.com/thechelsuk).
 
 Made with ♥ in the UK by thechels.uk: https://thechels.uk/projects/ext-reddit-delete-tool. See my other projects: https://thechels.uk/projects
+```
 
-**Official URL:** https://thechels.uk/projects/ext-reddit-delete-tool
+Official URL: the dashboard only lists sites verified in Google Search Console. Choose thechels.uk if it's listed,
+otherwise None.
 
-**Homepage URL:** https://thechels.uk/projects/ext-reddit-delete-tool
+Homepage URL:
 
-**Support URL:** https://github.com/thechelsuk/ext-chrome-reddit-deletion-tool/issues
+```text
+https://thechels.uk/projects/ext-reddit-delete-tool
+```
 
-**Images** (made by `tools/app-store-art pages`):
+Support URL:
+
+```text
+https://github.com/thechelsuk/ext-chrome-reddit-deletion-tool/issues
+```
+
+Images (made by `tools/app-store-art pages`):
+
 - Store icon, 128×128: `assets/icon128.png`
 - Screenshots, 1280×800, in this order: `screenshots/webstore/01-ready.png`, `02-running.png`, `03-complete.png`
 - Small promo tile, 440×280: `screenshots/webstore-tile/01-ready.png`
 
 ## Privacy practices tab
 
-**Single purpose:** Delete all of the signed-in user's own Reddit posts and comments in bulk, at their request.
+Single purpose:
 
-**Permission justifications:**
-- Host permission `*://old.reddit.com/*`: the extension opens your overview page on old Reddit, finds and clicks the delete and confirm links on your own posts and comments, and moves through its pages. It runs on no other site, including the new Reddit site.
+```text
+Delete all of the signed-in user's own Reddit posts and comments in bulk, at their request.
+```
 
-There are no other permissions to justify.
+Host permission justification (`*://old.reddit.com/*`, the only permission):
 
-**Remote code:** No, I am not using remote code.
+```text
+The extension opens your overview page on old Reddit, finds and clicks the delete and confirm links on your own posts and comments, and moves through its pages. It runs on no other site, including the new Reddit site.
+```
 
-**Data usage:** collects none of the listed data types. Tick all three certifications (not sold to third parties; not used for purposes unrelated to the item's single purpose; not used for creditworthiness or lending).
+Remote code: choose "No, I am not using remote code".
 
-**Privacy policy URL:** https://thechels.uk/app/privacy
+Data usage: tick none of the data types, then tick all three certifications.
 
-## Package
+Privacy policy URL:
 
-Upload `distribution.zip` from the repo root, built by `bash build-distribution.sh`.
+```text
+https://thechels.uk/app/privacy
+```
+
+## Distribution tab
+
+Choose Free, Public, all regions.
+
+## Test instructions tab
+
+```text
+Sign in to a throwaway Reddit account on old.reddit.com and post a test comment. Click the RedemptionX toolbar icon and choose Start Deletion. Deletion is permanent, so please don't use a real account.
+```
