@@ -107,3 +107,15 @@ jobs:
                   body_path: ${{ steps.notes.outputs.notes_file }}
                   draft: false
                   prerelease: ${{ contains(steps.pkg.outputs.version, '-') }}
+
+            - name: Publish to the Chrome Web Store
+              if: |
+                  steps.version_changed.outputs.changed == 'true' &&
+                  steps.tag_check.outputs.exists == 'false' &&
+                  vars.CWS_ITEM_ID != ''
+              uses: thechelsuk/workflows/.github/actions/chrome-web-store@main
+              with:
+                  publisher_id: ${{ vars.CWS_PUBLISHER_ID }}
+                  item_id: ${{ vars.CWS_ITEM_ID }}
+                  zip: distribution.zip
+                  service_account_key: ${{ secrets.CWS_SERVICE_ACCOUNT_KEY }}
